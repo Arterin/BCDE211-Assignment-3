@@ -22,7 +22,7 @@ describe("electionModel", function () {
             });
 
             describe("The single candidate added.", function () {
-                it("Should have the correst name.", function () {
+                it("Should have the correct name.", function () {
                     expect(theCandidate.candidateName).to.equal("bob");
                 });
 
@@ -81,7 +81,7 @@ describe("electionModel", function () {
             theElectorate.saveCandidates();
         });
 
-        it("Should load a candidate from localstorage when it has a single candidat.", function () {
+        it("Should load a candidate from localstorage when it has a single candidate.", function () {
             // New blank electorate.
             theElectorate2 = new Electorate("testElectorate");
             // Load.
@@ -169,18 +169,27 @@ describe("electionModel", function () {
             theElectorate.setNewCandidate("tim", "testParty1", 1058);
             theElectorate.setNewCandidate("tam", "testParty2", 51);
             theElectorate.setNewCandidate("tom", "testParty3", 50);
+            theElectorate.setNewCandidate("tum", "testParty4", 50);
         });
 
-        it("Should return the candidate onject with the most votes.", function () {
-            expectedResult = {
+        it("Should return an array of candidate objects with the most votes.", function () {
+            expectedResult = [{
                 candidateName: "tim",
                 partyName: "testParty1",
                 votes: 1058
-            };
+            }];
             actualResult = theElectorate.getLeadingCandidate();
             expect(actualResult).to.deep.equal(expectedResult);
         });
 
-        it("In case of tie returns all candidates tied for first place.");
+        it("In case of tie returns array of all candidates tied for first place.", function () {
+            expectedResult = [{
+                candidateName: "tim",
+                partyName: "testParty1",
+                votes: 1058
+            }];
+            actualResult = theElectorate.getLeadingCandidate();
+            expect(actualResult).to.deep.equal(expectedResult);
+        });
     });
 });
