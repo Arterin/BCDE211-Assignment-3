@@ -117,17 +117,11 @@ class Electorate {
         this.editedCandidateIndex = null;
     }
 
-    // TODO refactor to iterate over object values
     // FEATURE 12. A calculation across many parts.
     getLeadingCandidate() {
-        // Push votes into array.
-        let dataArray = [];
-        for (let o in this.candidates) {
-            dataArray.push(this.candidates[o].votes);
-        }
-        // Get index of highest number, return matching candidate
-        const leaderIndex = dataArray.indexOf(Math.max(...dataArray));
-        return this.candidates[leaderIndex];
+        const maxVotesValue = Math.max.apply(Math, this.candidates.map(function(candidate) { return candidate.votes; }));
+        return this.candidates.filter(function(candidate){ return candidate.votes === maxVotesValue; })
+        // Returns array of candidate objects with the highest votes.
     }
 
     // FEATURE 15. Get all parts.
@@ -142,3 +136,11 @@ module.exports = {
     Electorate: Electorate,
     STORAGE_KEY: STORAGE_KEY
 };
+
+// Debugging
+testElectorate = new Electorate("test electorate");
+testElectorate.setNewCandidate("bob", "party time", 300);
+testElectorate.setNewCandidate("tim", "not party time", 600);
+testElectorate.setNewCandidate("tam", "not party time 2", 600);
+
+console.log(testElectorate.getLeadingCandidate());
