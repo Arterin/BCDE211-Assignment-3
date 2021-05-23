@@ -1,8 +1,12 @@
-// TODO if statement for node localstorage.
-var LocalStorage = require("node-localstorage").LocalStorage;
-localStorage = new LocalStorage("./storage");
-// I'm aware that using 'localStorage' with node is pretty stupid and I should really be using a database instead
-// FEATURE 13. Provide default values
+// FOR NODE.JS
+// noinspection JSUnusedGlobalSymbols
+
+if (typeof localStorage === "undefined" || localStorage === null) {
+    const LocalStorage = require('node-localstorage').LocalStorage;
+    localStorage = new LocalStorage('./storage');
+}
+
+// FEATURE 13. Provide default values.
 const STORAGE_KEY = "candidates";
 
 // FEATURE 2. Add a part.
@@ -30,7 +34,7 @@ class Electorate {
             !this.candidates.some((i) => i.candidateName === newCandidateName)
         ) {
             // The candidate doesn't exist in the electorate, so add them. candidateName is unique.
-            var newCandidate = JSON.parse(
+            const newCandidate = JSON.parse(
                 JSON.stringify(
                     new Candidate(newCandidateName, newPartyName, newVotes)
                 )
@@ -117,12 +121,12 @@ class Electorate {
     // FEATURE 12. A calculation across many parts.
     getLeadingCandidate() {
         // Push votes into array.
-        var dataArray = [];
-        for (var o in this.candidates) {
+        let dataArray = [];
+        for (let o in this.candidates) {
             dataArray.push(this.candidates[o].votes);
         }
         // Get index of highest number, return matching candidate
-        var leaderIndex = dataArray.indexOf(Math.max(...dataArray));
+        const leaderIndex = dataArray.indexOf(Math.max(...dataArray));
         return this.candidates[leaderIndex];
     }
 
