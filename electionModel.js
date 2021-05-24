@@ -1,6 +1,7 @@
-// FOR NODE.JS
 // noinspection JSUnusedGlobalSymbols
 
+// TODO rewrite in typescript with required features.
+// FOR NODE.JS
 if (typeof localStorage === "undefined" || localStorage === null) {
     const LocalStorage = require('node-localstorage').LocalStorage;
     localStorage = new LocalStorage('./storage');
@@ -28,12 +29,12 @@ class Electorate {
         this.beforeEditNameCache = "";
     }
 
+    // FEATURE 10. Validate inputs.
     // FEATURE 2. Add a part.
     setNewCandidate(newCandidateName, newPartyName, newVotes) {
-        if (
-            !this.candidates.some((i) => i.candidateName === newCandidateName)
-        ) {
-            // The candidate doesn't exist in the electorate, so add them. candidateName is unique.
+        if (!this.candidates.some((i) => i.candidateName === newCandidateName &&
+            !this.candidates.some((i) => i.partyName === newPartyName))) {
+            // The candidate doesn't exist in the electorate, so add them. candidateName and partyName are unique.
             const newCandidate = JSON.parse(
                 JSON.stringify(
                     new Candidate(newCandidateName, newPartyName, newVotes)
@@ -43,6 +44,7 @@ class Electorate {
         }
     }
 
+    // TODO Separate sort by votes, separate sort alphabetically, sort by %age of votes.
     // FEATURE 3. Sort parts.
     sortCandidatesByVoteCount() {
         // Sorts high to low by votes, sorts alphabetically by name if tied on votes.
@@ -57,12 +59,17 @@ class Electorate {
         );
     }
 
-    //FEATURE 4. Filter parts.
+    // TODO Two more filters. filter by vote %age.
+    // FEATURE 4. Filter parts.
     getCandidatesByVoteThreshold(threshold) {
         return this.candidates.filter(
             (candidate) => candidate.votes >= threshold
         );
     }
+
+    // TODO Feature 10, validate all inputs.
+    // TODO Feature 11, calculation within a part, calculate vote %age of each candidate. have other methods call this one to update?
+    // TODO Feature 14, search function. successful search. unsuccessful search.
 
     // FEATURE 5. Delete a selected part.
     deleteCandidate(targetCandidateName) {
@@ -118,8 +125,8 @@ class Electorate {
     }
 
     // FEATURE 12. A calculation across many parts.
-    getLeadingCandidate() {
-        const maxVotesValue = Math.max.apply(Math, this.candidates.map(function(candidate) { return candidate.votes; }));
+    getLeadingCandidates() {
+        const maxVotesValue = Math.max.apply(Math, this.candidates.map(function(candidate){ return candidate.votes; }));
         return this.candidates.filter(function(candidate){ return candidate.votes === maxVotesValue; })
         // Returns array of candidate objects with the highest votes.
     }
@@ -143,4 +150,4 @@ testElectorate.setNewCandidate("bob", "party time", 300);
 testElectorate.setNewCandidate("tim", "not party time", 600);
 testElectorate.setNewCandidate("tam", "not party time 2", 600);
 
-console.log(testElectorate.getLeadingCandidate());
+console.log(testElectorate.getLeadingCandidates());
