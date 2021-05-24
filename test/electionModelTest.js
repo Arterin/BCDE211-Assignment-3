@@ -1,6 +1,7 @@
 /* globals describe it xdescribe xit beforeEach expect TodoList localStorage STORAGE_KEY */
 // noinspection JSUnresolvedVariable,JSUndeclaredVariable
 
+// TODO rewrite in jest/jasmine.
 let expect = require("chai").expect;
 let Electorate = require("../electionModel.js").Electorate;
 let STORAGE_KEY = require("../electionModel.js").STORAGE_KEY;
@@ -178,7 +179,7 @@ describe("electionModel", function () {
                 partyName: "testParty1",
                 votes: 1058
             }];
-            actualResult = theElectorate.getLeadingCandidate();
+            actualResult = theElectorate.getLeadingCandidates();
             expect(actualResult).to.deep.equal(expectedResult);
         });
 
@@ -188,7 +189,7 @@ describe("electionModel", function () {
                 partyName: "testParty1",
                 votes: 1058
             }];
-            actualResult = theElectorate.getLeadingCandidate();
+            actualResult = theElectorate.getLeadingCandidates();
             expect(actualResult).to.deep.equal(expectedResult);
         });
     });
