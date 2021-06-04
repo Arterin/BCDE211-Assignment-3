@@ -69,7 +69,7 @@ describe("electionModel", function () {
         it("Should have the correct JSON for the saved candidate in localStorage.", function () {
             let electorateJSON = localStorage.getItem(STORAGE_KEY);
             expect(electorateJSON).to.equal(
-                '[{"candidateName":"blub","partyName":"testParty1","votes":100}]'
+                '[{"candidateName":"blub","partyName":"testParty1","votes":100,"percentageOfVote":100}]'
             );
         });
     });
@@ -99,7 +99,7 @@ describe("electionModel", function () {
             theElectorate3.loadCandidates();
             candidatesJSON = theElectorate3.candidates;
             expect(candidatesJSON).to.deep.equal([
-                { candidateName: "tim", partyName: "testParty1", votes: 100 }
+                { candidateName: "tim", partyName: "testParty1", votes: 100, percentageOfVote: 100 }
             ]);
         });
     });
@@ -108,13 +108,13 @@ describe("electionModel", function () {
     describe("sortCandidatesByVoteCount", function () {
         it("Should sort candidates by vote count, high to low.", function () {
             theElectorate.setNewCandidate("tim", "testParty1", 100);
-            theElectorate.setNewCandidate("tam", "testParty2", 101);
-            theElectorate.setNewCandidate("tom", "testParty3", 1000);
+            theElectorate.setNewCandidate("tam", "testParty2", 200);
+            theElectorate.setNewCandidate("tom", "testParty3", 700);
             actualOrderCandidates = theElectorate.sortCandidatesByVoteCount();
             expectedOrderCandidates = [
-                { candidateName: "tom", partyName: "testParty3", votes: 1000 },
-                { candidateName: "tam", partyName: "testParty2", votes: 101 },
-                { candidateName: "tim", partyName: "testParty1", votes: 100 }
+                { candidateName: "tom", partyName: "testParty3", votes: 700, percentageOfVote: 70 },
+                { candidateName: "tam", partyName: "testParty2", votes: 200, percentageOfVote: 20 },
+                { candidateName: "tim", partyName: "testParty1", votes: 100, percentageOfVote: 10 }
             ];
             expect(actualOrderCandidates).to.deep.equal(
                 expectedOrderCandidates
@@ -122,16 +122,16 @@ describe("electionModel", function () {
         });
 
         it("Should sort by name alphabetically in case of a tie in votes.", function () {
-            theElectorate.setNewCandidate("tim", "testParty1", 100);
-            theElectorate.setNewCandidate("tam", "testParty2", 101);
-            theElectorate.setNewCandidate("tom", "testParty3", 1000);
+            theElectorate.setNewCandidate("tim", "testParty4", 100);
+            theElectorate.setNewCandidate("tam", "testParty2", 500);
+            theElectorate.setNewCandidate("tom", "testParty3", 300);
             theElectorate.setNewCandidate("atim", "testParty1", 100);
             actualOrderCandidates = theElectorate.sortCandidatesByVoteCount();
             expectedOrderCandidates = [
-                { candidateName: "tom", partyName: "testParty3", votes: 1000 },
-                { candidateName: "tam", partyName: "testParty2", votes: 101 },
-                { candidateName: "atim", partyName: "testParty1", votes: 100 },
-                { candidateName: "tim", partyName: "testParty1", votes: 100 }
+                { candidateName: "tam", partyName: "testParty2", votes: 500, percentageOfVote: 50 },
+                { candidateName: "tom", partyName: "testParty3", votes: 300, percentageOfVote: 30 },
+                { candidateName: "atim", partyName: "testParty1", votes: 100, percentageOfVote: 10 },
+                { candidateName: "tim", partyName: "testParty4", votes: 100, percentageOfVote: 10 }
             ];
             expect(actualOrderCandidates).to.deep.equal(
                 expectedOrderCandidates
@@ -144,18 +144,18 @@ describe("electionModel", function () {
     // FEATURE 4. Filter parts.
     describe("getCandidatesByVoteThreshold", function () {
         it("Should filter candidates who do not meet or exceed the vote threshold out.", function () {
-            theElectorate.setNewCandidate("tim", "testParty1", 1058);
-            theElectorate.setNewCandidate("tam", "testParty2", 51);
-            theElectorate.setNewCandidate("tom", "testParty3", 50);
+            theElectorate.setNewCandidate("tim", "testParty1", 400);
+            theElectorate.setNewCandidate("tam", "testParty2", 300);
+            theElectorate.setNewCandidate("tom", "testParty3", 200);
             theElectorate.setNewCandidate("atim", "testParty1", 0);
-            theElectorate.setNewCandidate("xtim", "testParty1", 49);
+            theElectorate.setNewCandidate("xtim", "testParty1", 100);
             expectedOrderFilteredCandidates = [
-                { candidateName: "tim", partyName: "testParty1", votes: 1058 },
-                { candidateName: "tam", partyName: "testParty2", votes: 51 },
-                { candidateName: "tom", partyName: "testParty3", votes: 50 }
+                { candidateName: "tim", partyName: "testParty1", votes: 400, percentageOfVote: 40 },
+                { candidateName: "tam", partyName: "testParty2", votes: 300, percentageOfVote: 30 },
+                { candidateName: "tom", partyName: "testParty3", votes: 200, percentageOfVote: 20 }
             ];
             actualOrderFilteredCandidates = theElectorate.getCandidatesByVoteThreshold(
-                50
+                200
             );
             expect(actualOrderFilteredCandidates).to.deep.equal(
                 expectedOrderFilteredCandidates
@@ -165,32 +165,60 @@ describe("electionModel", function () {
         it("TODO expand on this")
     });
 
+    // FEATURE 12. A calculation across many parts.
     describe("getLeadingCandidate", function () {
-        beforeEach(function () {
-            theElectorate.setNewCandidate("tim", "testParty1", 1058);
-            theElectorate.setNewCandidate("tam", "testParty2", 51);
-            theElectorate.setNewCandidate("tom", "testParty3", 50);
-            theElectorate.setNewCandidate("tum", "testParty4", 50);
-        });
 
         it("Should return an array of candidate objects with the most votes.", function () {
+            theElectorate.setNewCandidate("tim", "testParty1", 400);
+            theElectorate.setNewCandidate("tam", "testParty2", 300);
+            theElectorate.setNewCandidate("tom", "testParty3", 200);
+            theElectorate.setNewCandidate("tum", "testParty4", 100);
+
             expectedResult = [{
                 candidateName: "tim",
                 partyName: "testParty1",
-                votes: 1058
+                votes: 400,
+                percentageOfVote: 40
             }];
             actualResult = theElectorate.getLeadingCandidates();
             expect(actualResult).to.deep.equal(expectedResult);
         });
 
         it("In case of tie returns array of all candidates tied for first place.", function () {
+            theElectorate.setNewCandidate("tim", "testParty1", 400);
+            theElectorate.setNewCandidate("tam", "testParty2", 400);
+            theElectorate.setNewCandidate("tom", "testParty3", 200);
+
             expectedResult = [{
                 candidateName: "tim",
                 partyName: "testParty1",
-                votes: 1058
+                votes: 400,
+                percentageOfVote: 40
+            }, {
+                candidateName: "tam",
+                partyName: "testParty2",
+                votes: 400,
+                percentageOfVote: 40
             }];
             actualResult = theElectorate.getLeadingCandidates();
             expect(actualResult).to.deep.equal(expectedResult);
+        });
+    });
+
+    describe("updatePercentageOfVote", function() {
+        beforeEach( function() {
+            theElectorate.setNewCandidate("tim", "testParty1", 500);
+            theElectorate.setNewCandidate("tam", "testParty2", 300);
+            theElectorate.setNewCandidate("tom", "testParty3", 100);
+            theElectorate.setNewCandidate("tum", "testParty4", 100);
+        });
+
+        it('should correctly assign the percentage of votes', function () {
+            expectedResult = 50;
+            theElectorate.updatePercentageOfVote();
+            actualResult = theElectorate.candidates[0].percentageOfVote;
+            expect(actualResult).to.deep.equal(expectedResult);
+
         });
     });
 });
