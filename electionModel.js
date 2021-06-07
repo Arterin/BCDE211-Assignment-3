@@ -1,6 +1,7 @@
-// FOR NODE.JS
 // noinspection JSUnusedGlobalSymbols
 
+// TODO rewrite in typescript with required features.
+// FOR NODE.JS
 if (typeof localStorage === "undefined" || localStorage === null) {
     const LocalStorage = require('node-localstorage').LocalStorage;
     localStorage = new LocalStorage('./storage');
@@ -11,10 +12,11 @@ const STORAGE_KEY = "candidates";
 
 // FEATURE 2. Add a part.
 class Candidate {
-    constructor(newCandidateName, newPartyName, newVotes = 0) {
+    constructor(newCandidateName, newPartyName, newVotes = 0, newPercentageOfVote = 0) {
         this.candidateName = newCandidateName;
         this.partyName = newPartyName;
         this.votes = newVotes; // FEATURE 13. Provide default values.
+        this.percentageOfVote = newPercentageOfVote;
     }
 }
 
@@ -26,23 +28,27 @@ class Electorate {
         // Following attributes are for supporting editing candidateName
         this.editedCandidateIndex = null;
         this.beforeEditNameCache = "";
+        this.totalVotes = 0;
     }
 
+    // FEATURE 10. Validate inputs.
     // FEATURE 2. Add a part.
-    setNewCandidate(newCandidateName, newPartyName, newVotes) {
-        if (
-            !this.candidates.some((i) => i.candidateName === newCandidateName)
-        ) {
-            // The candidate doesn't exist in the electorate, so add them. candidateName is unique.
+    setNewCandidate(newCandidateName, newPartyName, newVotes = 0, newPercentageOfVote = 0) {
+        if (!this.candidates.some((i) => i.candidateName === newCandidateName &&
+            !this.candidates.some((i) => i.partyName === newPartyName))) {
+            // The candidate doesn't exist in the electorate, so add them. candidateName and partyName are unique.
             const newCandidate = JSON.parse(
                 JSON.stringify(
-                    new Candidate(newCandidateName, newPartyName, newVotes)
+                    new Candidate(newCandidateName, newPartyName, newVotes, newPercentageOfVote)
                 )
             );
             this.candidates.push(newCandidate);
+            this.totalVotes += newVotes;
+            this.updatePercentageOfVote();
         }
     }
 
+    // TODO Separate sort by votes, separate sort alphabetically, sort by %age of votes.
     // FEATURE 3. Sort parts.
     sortCandidatesByVoteCount() {
         // Sorts high to low by votes, sorts alphabetically by name if tied on votes.
@@ -57,11 +63,32 @@ class Electorate {
         );
     }
 
-    //FEATURE 4. Filter parts.
+    // TODO filter by vote %age.
+    // TODO one more filter.
+    // FEATURE 4. Filter parts.
     getCandidatesByVoteThreshold(threshold) {
         return this.candidates.filter(
             (candidate) => candidate.votes >= threshold
         );
+    }
+
+    // TODO make vote percentage property on candidate object, calculate on candidate creation instead of calculating here.
+    // FEATURE 4. Filter parts.
+    getCandidatesByVotePercentage(threshold) {
+
+    }
+
+    // TODO Feature 10, validate all inputs.
+    // TODO Feature 11, calculation within a part, calculate vote %age of each candidate. have other methods call this one to update?
+    // TODO Feature 14, search function. successful search. unsuccessful search.
+
+    // FEATURE 11. Calculation within a part.
+    updatePercentageOfVote() {
+        //this.totalVotes = this.candidates.reduce((a, c) => a + c.votes)
+        let self = this;
+        this.candidates.forEach(function(candidate){
+            candidate.percentageOfVote = (candidate.votes / self.totalVotes)*100;
+        });
     }
 
     // FEATURE 5. Delete a selected part.
@@ -117,17 +144,11 @@ class Electorate {
         this.editedCandidateIndex = null;
     }
 
-    // TODO refactor to iterate over object values
     // FEATURE 12. A calculation across many parts.
-    getLeadingCandidate() {
-        // Push votes into array.
-        let dataArray = [];
-        for (let o in this.candidates) {
-            dataArray.push(this.candidates[o].votes);
-        }
-        // Get index of highest number, return matching candidate
-        const leaderIndex = dataArray.indexOf(Math.max(...dataArray));
-        return this.candidates[leaderIndex];
+    getLeadingCandidates() {
+        const maxVotesValue = Math.max.apply(Math, this.candidates.map(function(candidate){ return candidate.votes; }));
+        return this.candidates.filter(function(candidate){ return candidate.votes === maxVotesValue; })
+        // Returns array of candidate objects with the highest votes.
     }
 
     // FEATURE 15. Get all parts.
@@ -142,3 +163,11 @@ module.exports = {
     Electorate: Electorate,
     STORAGE_KEY: STORAGE_KEY
 };
+
+// Debugging
+testElectorate = new Electorate("test electorate");
+testElectorate.setNewCandidate("bob", "party time", 100);
+testElectorate.setNewCandidate("tim", "not party time", 200);
+testElectorate.setNewCandidate("tam", "not party time 2", 700);
+
+console.log(testElectorate.getAllCandidates());
