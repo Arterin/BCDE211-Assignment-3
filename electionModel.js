@@ -163,11 +163,3 @@ module.exports = {
     Electorate: Electorate,
     STORAGE_KEY: STORAGE_KEY
 };
-
-// Debugging
-testElectorate = new Electorate("test electorate");
-testElectorate.setNewCandidate("bob", "party time", 100);
-testElectorate.setNewCandidate("tim", "not party time", 200);
-testElectorate.setNewCandidate("tam", "not party time 2", 700);
-
-console.log(testElectorate.getAllCandidates());
