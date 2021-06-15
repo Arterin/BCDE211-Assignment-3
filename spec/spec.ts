@@ -1,17 +1,19 @@
 /* globals describe it xdescribe xit beforeEach expect TodoList localStorage STORAGE_KEY */
 // noinspection JSUnresolvedVariable
-
-// TODO rewrite in jest/jasmine.
-let expect = require("chai").expect;
+import "jasmine";
 let Electorate_module = require("../electionModel.js").Electorate;
 let STORAGE_KEY_module = require("../electionModel.js").STORAGE_KEY;
 let LocalStorage = require("node-localstorage").LocalStorage;
-
+// fs is a node.js module.
+const fs = require('fs');
+let storageFile = "./storage/candidates";
 
 let theElectorate: any;
+let localStorage : any;
 let theCandidate: any;
 let theElectorate2: any;
 let theElectorate3: any;
+
 describe("electionModel", function () {
     beforeEach(function () {
         theElectorate = new Electorate_module("testElectorate");
@@ -29,21 +31,21 @@ describe("electionModel", function () {
 
             describe("The single candidate added.", function () {
                 it("Should have the correct name.", function () {
-                    expect(theCandidate.candidateName).to.equal("bob");
+                    expect(theCandidate.candidateName).toEqual("bob");
                 });
 
                 it("Should have the correct partyName.", function () {
-                    expect(theCandidate.partyName).to.equal("testParty");
+                    expect(theCandidate.partyName).toEqual("testParty");
                 });
 
                 it("Should have correct votes.", function () {
-                    expect(theCandidate.votes).to.equal(1);
+                    expect(theCandidate.votes).toEqual(1);
                 });
             });
 
             describe("The candidates list.", function () {
                 it("Should have one entry.", function () {
-                    expect(theElectorate.candidates.length).to.equal(1);
+                    expect(theElectorate.candidates.length).toEqual(1);
                 });
             });
         });
@@ -53,7 +55,7 @@ describe("electionModel", function () {
                 theElectorate.setNewCandidate("bink", "testParty1", 1);
                 theElectorate.setNewCandidate("bonk", "testParty2", 2);
                 theElectorate.setNewCandidate("bosh", "testParty3", 3);
-                expect(theElectorate.candidates.length).to.equal(3);
+                expect(theElectorate.candidates.length).toEqual(3);
             });
         });
     });
@@ -67,13 +69,13 @@ describe("electionModel", function () {
         });
 
         it("Should save a candidate from storage when there is one candidate.", function () {
-            let electorateJSON = localStorage.getItem(STORAGE_KEY_module);
-            expect(electorateJSON).to.exist;
+            // fs is a node.js module.
+            expect(fs.existsSync(storageFile)).toBe(true);
         });
 
         it("Should have the correct JSON for the saved candidate in localStorage.", function () {
             let electorateJSON = localStorage.getItem(STORAGE_KEY_module);
-            expect(electorateJSON).to.equal(
+            expect(electorateJSON).toEqual(
                 '[{"candidateName":"blub","partyName":"testParty1","votes":100,"percentageOfVote":100}]'
             );
         });
@@ -93,7 +95,7 @@ describe("electionModel", function () {
             // Load.
             theElectorate2.loadCandidates();
             let loadedCandidates = theElectorate2.candidates;
-            expect(loadedCandidates.length).to.equal(1);
+            expect(loadedCandidates.length).toEqual(1);
         });
 
         it("Should have the correct array for the loaded candidate in .candidates.", function () {
@@ -103,8 +105,8 @@ describe("electionModel", function () {
             // Load.
             theElectorate3.loadCandidates();
             let candidatesJSON = theElectorate3.candidates;
-            expect(candidatesJSON).to.deep.equal([
-                { candidateName: "tim", partyName: "testParty1", votes: 100, percentageOfVote: 100 }
+            expect(candidatesJSON).toEqual([
+                {candidateName: "tim", partyName: "testParty1", votes: 100, percentageOfVote: 100}
             ]);
         });
     });
@@ -117,11 +119,11 @@ describe("electionModel", function () {
             theElectorate.setNewCandidate("tom", "testParty3", 700);
             let actualOrderCandidates = theElectorate.sortCandidatesByVoteCount();
             let expectedOrderCandidates = [
-                { candidateName: "tom", partyName: "testParty3", votes: 700, percentageOfVote: 70 },
-                { candidateName: "tam", partyName: "testParty2", votes: 200, percentageOfVote: 20 },
-                { candidateName: "tim", partyName: "testParty1", votes: 100, percentageOfVote: 10 }
+                {candidateName: "tom", partyName: "testParty3", votes: 700, percentageOfVote: 70},
+                {candidateName: "tam", partyName: "testParty2", votes: 200, percentageOfVote: 20},
+                {candidateName: "tim", partyName: "testParty1", votes: 100, percentageOfVote: 10}
             ];
-            expect(actualOrderCandidates).to.deep.equal(
+            expect(actualOrderCandidates).toEqual(
                 expectedOrderCandidates
             );
         });
@@ -133,12 +135,12 @@ describe("electionModel", function () {
             theElectorate.setNewCandidate("atim", "testParty1", 100);
             const actualOrderCandidates = theElectorate.sortCandidatesByVoteCount();
             const expectedOrderCandidates = [
-                { candidateName: "tam", partyName: "testParty2", votes: 500, percentageOfVote: 50 },
-                { candidateName: "tom", partyName: "testParty3", votes: 300, percentageOfVote: 30 },
-                { candidateName: "atim", partyName: "testParty1", votes: 100, percentageOfVote: 10 },
-                { candidateName: "tim", partyName: "testParty4", votes: 100, percentageOfVote: 10 }
+                {candidateName: "tam", partyName: "testParty2", votes: 500, percentageOfVote: 50},
+                {candidateName: "tom", partyName: "testParty3", votes: 300, percentageOfVote: 30},
+                {candidateName: "atim", partyName: "testParty1", votes: 100, percentageOfVote: 10},
+                {candidateName: "tim", partyName: "testParty4", votes: 100, percentageOfVote: 10}
             ];
-            expect(actualOrderCandidates).to.deep.equal(
+            expect(actualOrderCandidates).toEqual(
                 expectedOrderCandidates
             );
         });
@@ -155,14 +157,14 @@ describe("electionModel", function () {
             theElectorate.setNewCandidate("atim", "testParty1", 0);
             theElectorate.setNewCandidate("xtim", "testParty1", 100);
             const expectedOrderFilteredCandidates = [
-                { candidateName: "tim", partyName: "testParty1", votes: 400, percentageOfVote: 40 },
-                { candidateName: "tam", partyName: "testParty2", votes: 300, percentageOfVote: 30 },
-                { candidateName: "tom", partyName: "testParty3", votes: 200, percentageOfVote: 20 }
+                {candidateName: "tim", partyName: "testParty1", votes: 400, percentageOfVote: 40},
+                {candidateName: "tam", partyName: "testParty2", votes: 300, percentageOfVote: 30},
+                {candidateName: "tom", partyName: "testParty3", votes: 200, percentageOfVote: 20}
             ];
-           let actualOrderFilteredCandidates = theElectorate.getCandidatesByVoteThreshold(
+            let actualOrderFilteredCandidates = theElectorate.getCandidatesByVoteThreshold(
                 200
             );
-            expect(actualOrderFilteredCandidates).to.deep.equal(
+            expect(actualOrderFilteredCandidates).toEqual(
                 expectedOrderFilteredCandidates
             );
         });
@@ -186,7 +188,7 @@ describe("electionModel", function () {
                 percentageOfVote: 40
             }];
             const actualResult = theElectorate.getLeadingCandidates();
-            expect(actualResult).to.deep.equal(expectedResult);
+            expect(actualResult).toEqual(expectedResult);
         });
 
         it("In case of tie returns array of all candidates tied for first place.", function () {
@@ -206,12 +208,12 @@ describe("electionModel", function () {
                 percentageOfVote: 40
             }];
             const actualResult = theElectorate.getLeadingCandidates();
-            expect(actualResult).to.deep.equal(expectedResult);
+            expect(actualResult).toEqual(expectedResult);
         });
     });
 
-    describe("updatePercentageOfVote", function() {
-        beforeEach( function() {
+    describe("updatePercentageOfVote", function () {
+        beforeEach(function () {
             theElectorate.setNewCandidate("tim", "testParty1", 500);
             theElectorate.setNewCandidate("tam", "testParty2", 300);
             theElectorate.setNewCandidate("tom", "testParty3", 100);
@@ -222,7 +224,7 @@ describe("electionModel", function () {
             const expectedResult = 50;
             theElectorate.updatePercentageOfVote();
             const actualResult = theElectorate.candidates[0].percentageOfVote;
-            expect(actualResult).to.deep.equal(expectedResult);
+            expect(actualResult).toEqual(expectedResult);
 
         });
     });
