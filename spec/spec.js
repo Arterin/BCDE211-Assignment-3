@@ -124,7 +124,6 @@ describe("electionModel", function () {
             ];
             expect(actualOrderCandidates).toEqual(expectedOrderCandidates);
         });
-        it("Should return all of the candidates.");
     });
     // FEATURE 4. Filter parts.
     describe("getCandidatesByVoteThreshold", function () {
@@ -142,7 +141,6 @@ describe("electionModel", function () {
             var actualOrderFilteredCandidates = theElectorate.getCandidatesByVoteThreshold(200);
             expect(actualOrderFilteredCandidates).toEqual(expectedOrderFilteredCandidates);
         });
-        it("TODO expand on this");
     });
     // FEATURE 12. A calculation across many parts.
     describe("getLeadingCandidate", function () {

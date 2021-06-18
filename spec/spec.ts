@@ -144,8 +144,6 @@ describe("electionModel", function () {
                 expectedOrderCandidates
             );
         });
-
-        it("Should return all of the candidates.")
     });
 
     // FEATURE 4. Filter parts.
@@ -168,8 +166,6 @@ describe("electionModel", function () {
                 expectedOrderFilteredCandidates
             );
         });
-
-        it("TODO expand on this")
     });
 
     // FEATURE 12. A calculation across many parts.
